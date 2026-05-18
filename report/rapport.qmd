@@ -64,21 +64,21 @@ Le succès de tout projet de Data Science repose sur la qualité de la préparat
 
 ---
 
-# Analyse Exploratoire des Données (EDA) {#sec-eda}
-
-Dans cette section, nous analysons les relations statistiques fondamentales qui régissent votre domaine d'étude au sein du jeu de données.
-
-## Chapitre 3 : Travaux Pratiques d'Exploration (EDA)
-{{< include ../build/notebooks/03_eda.qmd >}}
-
----
-
 # Visualisation Multidimensionnelle (Insights) {#sec-viz}
 
 Nous présentons ici les résultats visuels clés permettant de dégager des insights exploitables pour les décideurs, en s'appuyant sur notre module `src/utils_viz.py`.
 
-## Chapitre 4 : Travaux Pratiques d'Exploration Visuelle
-{{< include ../build/notebooks/04_visualisation.qmd >}}
+## Chapitre 3 : Travaux Pratiques d'Exploration Visuelle
+{{< include ../build/notebooks/03_visualisation.qmd >}}
+
+---
+
+# Analyse Exploratoire des Données (EDA) {#sec-eda}
+
+Dans cette section, nous analysons les relations statistiques fondamentales qui régissent votre domaine d'étude au sein du jeu de données.
+
+## Chapitre 4 : Travaux Pratiques d'Exploration (EDA)
+{{< include ../build/notebooks/04_eda.qmd >}}
 
 ---
 
