@@ -450,8 +450,7 @@ L'objectif est de classifier automatiquement les biens immobiliers en trois cat�
 
 Le dataset retenu est House Prices and Images SoCal, disponible sur Kaggle. Il comprend 15 474 biens immobiliers californiens, chacun associé à une photographie réelle et à ses caractéristiques tabulaires (prix, surface, nombre de pièces, etc.).
 
-Pour des contraintes de temps de calcul (entraînement sur CPU), un échantillon de 1 000 images a été utilisé, redimensionnées à 128 x 128 pixels et normalisées entre 0 et 1.
-
+Pour
 ### Création des catégories de prix
 
 Les seuils de classification ont été définis à partir des quantiles à 33% et 66% de la distribution des prix :
@@ -602,3 +601,4 @@ Collaborative Scientific and Technical Publishing.”
 </div>
 
 </div>
+ des contraintes de temps de calcul (entraînement sur CPU), un échantillon de 1 000 images a été utilisé, redimensionnées à 128 x 128 pixels et normalisées entre 0 et 1.
