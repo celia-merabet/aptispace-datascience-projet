@@ -1,5 +1,5 @@
 # Mon Projet Data Science
-Étudiant(e) 1 :celia merabet  
+Étudiant(e) 1 : celia merabet  
 Étudiant(e) 2 : Abderrahmane Karim RAKEM   
 Étudiant(e) 3 : BOUYABRI Mohamed
 
@@ -99,17 +99,17 @@ Le succès de tout projet de Data Science repose sur la qualité de la préparat
 
 *À rédiger par les étudiants : Présentez un audit critique complet de vos fichiers de données brutes. Indiquez la liste des anomalies physiques et typologiques détectées (formats de dates hétérogènes, outliers physiques, taux de valeurs manquantes, etc.).*
 
-Les données brutes utilisées dans ce projet proviennent de sources immobilières ouvertes (type Kaggle / Airbnb / datasets immobiliers).
+Le dataset principal House Prices contient 1 460 biens immobiliers et 81 variables initiales. L'audit initial a permis d'identifier les anomalies suivantes :
 
-Lors de l'audit initial, plusieurs problèmes ont été identifiés :
+Valeurs manquantes importantes : PoolQC (1 453 manquants sur 1 460, soit 99.5%), MiscFeature (1 406), Alley (1 369), Fence (1 179), MasVnrType (872), FireplaceQu (690). Ces colonnes sont quasi-vides et nécessitent une stratégie d'imputation adaptée.
 
-valeurs manquantes dans certaines variables (surface, équipements)
-incohérences de format (prix en différentes devises ou formats texte)
-présence de valeurs aberrantes (outliers sur les prix extrêmes)
-variables catégorielles non normalisées (quartiers, types de biens)
-doublons dans certaines entrées issues de plateformes multiples
+Valeurs manquantes modérées : LotFrontage (259 manquants), GarageFinish, GarageCond, GarageYrBlt, GarageQual, GarageType (81 manquants chacun), BsmtExposure (38), BsmtQual (37).
 
-Un diagnostic initial a permis de définir une stratégie de nettoyage adaptée afin de garantir la qualité des modèles futurs.
+Outliers sur la variable cible SalePrice : 61 valeurs aberrantes détectées aux percentiles extrêmes (1% et 99%), représentant des biens atypiques pouvant biaiser le modèle.
+
+Aucun doublon détecté dans le dataset (0 lignes dupliquées).
+
+Un jeu de données secondaire a été créé manuellement pour enrichir l'analyse, associant chaque quartier (Neighborhood) à une catégorie de zone (Standard, Premium, Luxury) et à un coefficient multiplicateur.
 
 ## Algorithme de Nettoyage
 
@@ -117,29 +117,24 @@ Un diagnostic initial a permis de définir une stratégie de nettoyage adaptée 
 
 Le pipeline de nettoyage suit les étapes suivantes :
 
-### Uniformisation des formats:
+### Fusion multi-sources :
 
-conversion des prix en format numérique
-standardisation des unités (m² pour les surfaces)
+Le dataset principal (1 460 lignes, 81 colonnes) a été fusionné avec le dataset secondaire de zones via une jointure sur la colonne Neighborhood, produisant un dataset enrichi de 83 colonnes.
 
 ### Traitement des valeurs manquantes :
 
-imputation par médiane pour les variables numériques
-imputation par mode pour les variables catégorielles
+imputation par médiane pour les variables numériques (LotFrontage, GarageYrBlt, MasVnrArea, etc.)
+imputation par la valeur "Unknown" pour les variables catégorielles (Alley, PoolQC, Fence, MiscFeature, etc.)
 
-### Gestion des outliers:
+### Gestion des outliers sur SalePrice :
 
-suppression des valeurs extrêmes via méthode IQR
-ou transformation logarithmique du prix
+suppression des valeurs extrêmes situées en dehors de l'intervalle [percentile 1%, percentile 99%], soit 61 biens atypiques remplacés par NaN puis réimpeutés par la médiane.
 
-### Encodage des variables catégorielles:
+### Feature Engineering :
 
-One-Hot Encoding pour les variables nominales
-Label Encoding pour certaines variables ordinales
-
-### Normalisation des variables:
-
-standardisation (StandardScaler) pour les modèles ML sensibles à l'échelle
+création de HouseAge = YrSold - YearBuilt pour capturer la dépréciation du bien
+création de LogSalePrice = log(1 + SalePrice) pour normaliser la distribution asymétrique des prix
+création de LogArea = log(1 + LotArea) pour normaliser la surface du terrain
 
 ## Travaux Pratiques de Wrangling
 
@@ -151,23 +146,23 @@ Ce notebook correspond à la première étape du **Jalon 1**. L'objectif est d'i
 
 ### 2. Audit initial des données
 
-**À faire par l'étudiant :** Explorez le dataset brut pour évaluer sa structure : - Quelles sont les dimensions du dataset ? - Quels sont les types de données par colonne ? - Reste-t-il des valeurs nulles ? Quel est le taux de valeurs manquantes par variable ? - Y a-t-il des doublons ?
+Le dataset brut contient 1 460 lignes et 81 colonnes. L'audit révèle 0 doublon et de nombreuses valeurs manquantes sur les variables liées au garage, à la cave et aux équipements optionnels (piscine, allée). Les colonnes PoolQC, MiscFeature et Alley sont quasi-vides (plus de 90% de valeurs manquantes).
 
 ### 3. Nettoyage et uniformisation des Dates
 
-**À faire par l'étudiant :** Appliquez la fonction `clean_dates` de votre module `src.data_clean` pour convertir la colonne `timestamp` en type Datetime uniforme.
+Le dataset House Prices ne contient pas de colonne timestamp. Les variables temporelles utilisées sont YearBuilt (année de construction) et YrSold (année de vente), toutes deux en format numérique et ne nécessitant pas de conversion.
 
 ### 4. Identification et Traitement des Outliers (Anomalies physiques)
 
-**À faire par l'étudiant :** Analysez les valeurs de la colonne `value` et appliquez votre fonction `handle_outliers` pour filtrer les valeurs physiques aberrantes (inférieures à 0 ou supérieures à 100).
+61 outliers ont été détectés sur la variable SalePrice via la méthode des percentiles (1% - 99%). Ces valeurs extrêmes correspondent à des biens atypiques (très bon marché ou extrêmement chers) pouvant dégrader la qualité du modèle prédictif.
 
 ### 5. Imputation des valeurs manquantes
 
-**À faire par l'étudiant :** Appliquez la fonction `impute_missing_values` pour remplir les NaNs issus du chargement initial ou du nettoyage des anomalies.
+Les valeurs manquantes numériques ont été remplacées par la médiane de chaque colonne. Les valeurs manquantes catégorielles ont été remplacées par "Unknown" pour conserver toutes les lignes du dataset sans perte d'information.
 
 ### 6. Sauvegarde des données propres
 
-Enregistrez votre DataFrame nettoyé dans `data/processed/cleaned_data_sample.csv`.
+Le DataFrame nettoyé (1 460 lignes, 85 colonnes après feature engineering) a été sauvegardé dans `data/processed/cleaned_data_sample.csv`.
 
 ------------------------------------------------------------------------
 
@@ -179,26 +174,28 @@ Dans cette section, nous analysons les relations statistiques fondamentales qui 
 
 *À rédiger par les étudiants : Présentez une vue d'ensemble descriptive rapide de vos variables nettoyées.*
 
-Le dataset House Prices contient 1 460 biens immobiliers avec 81 variables initiales, enrichies à 85 après feature engineering. Les principales caractéristiques de la variable cible SalePrice sont les suivantes :
+Le dataset nettoyé contient 1 460 biens immobiliers et 85 variables (après feature engineering). Les statistiques descriptives de la variable cible SalePrice révèlent :
 
-- Prix moyen : 178 094 $
+- Prix moyen : 179 914 $
 - Prix médian : 163 000 $
-- Écart-type : 78 956 $
-- Prix minimum : 34 900 $ / Prix maximum : 450 000 $ (après traitement des outliers)
+- Écart-type : 73 992 $
+- 61 outliers détectés et traités
 
-La distribution des prix est asymétrique vers la droite, ce qui justifie l'application d'une transformation logarithmique (LogSalePrice) pour normaliser la distribution avant modélisation. Les variables les plus corrélées avec SalePrice sont OverallQual (r = 0.79), GrLivArea (r = 0.71) et TotalBsmtSF (r = 0.61).
+La distribution des prix est asymétrique vers la droite, confirmant l'intérêt de la transformation logarithmique. L'analyse par zone de marché montre des écarts significatifs : les biens en zone FV (Floating Village Residential) atteignent un prix moyen de 214 014 $, contre seulement 82 768 $ en zone commerciale C(all).
 
 ## Ingénierie de Variables (Feature Engineering)
 
 *À rédiger par les étudiants : Expliquez l'intérêt mathématique et l'impact sur les modèles prédictifs d'extraire des caractéristiques dérivées (ex: variables cycliques temporelles, ratios financiers, ratios physiques, etc.).*
 
-Deux variables dérivées ont été créées pour enrichir le dataset :
+Trois variables dérivées ont été créées pour enrichir le dataset :
 
-HouseAge (âge du bien au moment de la vente) : calculée comme YrSold - YearBuilt. Cette variable capture la dépréciation naturelle du bien dans le temps, un facteur clé dans la valorisation immobilière.
+HouseAge (âge du bien au moment de la vente) : calculée comme YrSold - YearBuilt. Cette variable capture la dépréciation naturelle du bien. Par exemple, un bien construit en 1985 et vendu en 2008 a un HouseAge de 23 ans.
 
-LogSalePrice (transformation logarithmique du prix) : la distribution brute des prix étant fortement asymétrique, la transformation logarithmique permet de la normaliser et d'améliorer la stabilité des modèles de régression sensibles à cette asymétrie.
+LogSalePrice (transformation logarithmique du prix) : la distribution brute des prix étant fortement asymétrique, la transformation logarithmique la normalise et améliore la stabilité des modèles de régression.
 
-Par ailleurs, un coefficient de zone (coef_multiplicateur) a été créé à partir de la variable Neighborhood, en attribuant un coefficient multiplicateur selon la catégorie de zone (Standard = 1.0, Premium = 1.2, Luxury = 1.5).
+LogArea (transformation logarithmique de la surface du terrain) : même logique que LogSalePrice, la surface du terrain présente une distribution très étalée vers les grandes valeurs.
+
+Par ailleurs, un coefficient de zone (coef_multiplicateur) a été créé à partir de la variable Neighborhood, avec des coefficients variant de 1.0 (Standard) à 1.5 (Luxury).
 
 ## Travaux Pratiques d'Exploration Visuelle (EDA)
 
@@ -208,27 +205,37 @@ Ce notebook est dédié à la découverte de relations clés et à l'analyse vis
 
 ### 1. Importation des packages et configuration du style
 
-### 2. Ingénierie de variables temporelles
+### 2. Ingénierie de variables
 
-**À faire par l'étudiant :** Appliquez la fonction `feature_engineering` de `src.data_clean` pour enrichir votre DataFrame en caractéristiques de temps classiques (heures, jours de la semaine).
+Les variables HouseAge et LogArea ont été créées à partir des variables brutes YearBuilt, YrSold et LotArea pour enrichir le dataset avec des caractéristiques plus informatives pour les modèles prédictifs.
 
 ### 3. Visualisations Professionnelles
 
-#### A. Profils d'évolution et tendances
+#### A. Distribution des prix de vente
 
-**À faire par l'étudiant :** Appliquez la fonction `plot_generic_trends` de votre module `src.utils_viz` pour tracer l'évolution de la valeur par rapport au temps.
+La distribution des prix présente une asymétrie positive marquée avec un pic autour de 150 000 $. La longue queue vers la droite justifie l'utilisation d'une transformation logarithmique avant modélisation.
 
 #### B. Matrice de corrélation multi-variables
 
-**À faire par l'étudiant :** Appliquez la fonction `plot_correlation_matrix` de votre module `src.utils_viz` pour calculer et afficher graphiquement la carte thermique des corrélations sur les colonnes `['value', 'hour', 'dayofweek']`.
+Les corrélations les plus fortes avec SalePrice sont OverallQual (r = 0.808), LogArea (r = 0.704), GrLivArea (r = 0.703), GarageCars (r = 0.659) et TotalBsmtSF (r = 0.617).
 
-#### C. Nuage de points bivarié
+#### C. Relation surface habitable / prix
 
-**À faire par l'étudiant :** Générez un nuage de points de la relation heure vs valeur en colorant les points selon la variable `dayofweek`, en utilisant votre fonction `plot_bivariate_scatter`.
+Le nuage de points Surface vs Prix révèle une relation positive claire : les grandes surfaces ont globalement des prix plus élevés, mais avec une forte dispersion indiquant que d'autres facteurs (qualité, localisation) jouent un rôle important.
 
 ### 4. Synthèse des observations clés
 
-Sur la base de vos figures, listez les **insights majeurs** observés sur le comportement de vos variables.
+Les 5 insights majeurs identifiés lors de l'EDA sont les suivants :
+
+La qualité de construction est le facteur le plus corrélé au prix (r = 0.808). Un bien noté 10/10 vaut en moyenne 4 fois plus qu'un bien noté 2/10.
+
+La surface habitable est le deuxième facteur clé (r = 0.703). Chaque 100 sqft supplémentaires correspond en moyenne à une augmentation de prix de 10 000 $.
+
+La localisation par zone de marché crée des écarts de prix significatifs : la zone FV affiche un prix moyen 2.6 fois supérieur à la zone commerciale C(all).
+
+L'âge du bien a un impact négatif modéré sur le prix : les biens récents (HouseAge < 10 ans) valent en moyenne 30% de plus que les biens anciens (HouseAge > 50 ans).
+
+La capacité du garage est fortement corrélée au prix (r = 0.659), reflétant le lien entre standing du bien et équipements associés.
 
 ------------------------------------------------------------------------
 
@@ -236,15 +243,13 @@ Sur la base de vos figures, listez les **insights majeurs** observés sur le com
 
 Nous présentons ici les résultats visuels clés permettant de dégager des insights exploitables pour les décideurs, en s'appuyant sur notre module `src/utils_viz.py`.
 
-*À rédiger par les étudiants : Présentez et commentez en détail vos 3 à 5 insights majeurs découverts lors de l'exploration descriptive visuelle. Intégrez et justifiez les figures clés générées.*
-
 ## Profils et Distributions Caractéristiques
 
-\[Commenter la figure et décrire vos observations ici\]
+La distribution des prix de vente montre une asymétrie positive marquée avec un prix médian de 163 000 $ et un prix moyen de 179 914 $. L'écart entre moyenne et médiane (+16 914 $) confirme l'influence de quelques biens très chers sur la moyenne. Cette observation justifie l'utilisation de la médiane comme statistique de référence pour les estimations immobilières et l'application de la transformation logarithmique avant modélisation.
 
 ## Corrélations Globales
 
-\[Commenter la figure et décrire vos observations ici\]
+La matrice de corrélation révèle quatre variables numériques particulièrement prédictives du prix de vente : OverallQual (r = 0.808), GrLivArea (r = 0.703), GarageCars (r = 0.659) et TotalBsmtSF (r = 0.617). Ces quatre variables constituent le socle des features retenues pour le modèle RandomForest. On note également une forte corrélation entre GarageArea et GarageCars (r > 0.85), signe de multicolinéarité : nous avons retenu GarageCars comme variable plus interprétable.
 
 ------------------------------------------------------------------------
 
@@ -252,7 +257,7 @@ Nous présentons ici les résultats visuels clés permettant de dégager des ins
 
 ## Schéma Global du Pipeline de Données
 
-Le pipeline complet intègre à la fois la branche analytique tabulaire (Machine Learning) et la branche d'analyse visuelle ou de signaux complexes (Deep Learning CNN) :
+Le pipeline complet intègre à la fois la branche analytique tabulaire (Machine Learning) et la branche d'analyse visuelle ou de signaux complexes (Deep Learning CNN).
 
 ## Modélisation Tabulaire (Machine Learning)
 
@@ -306,27 +311,25 @@ L'insight principal est que la qualité globale de construction pèse trois fois
 
 # 🧠 Jalon 2 : Modélisation Prédictive & Apprentissage (Squelette Étudiant)
 
-Dans ce notebook du **Jalon 2**, l'objectif est d'implémenter un pipeline complet d'apprentissage supervisé pour prédire une variable cible (`value`) à l'aide de Scikit-Learn.
-
-Vous devrez mettre en œuvre une stratégie de découpage train/test chronologique pour respecter la causalité temporelle.
+Dans ce notebook du **Jalon 2**, l'objectif est d'implémenter un pipeline complet d'apprentissage supervisé pour prédire une variable cible (`SalePrice`) à l'aide de Scikit-Learn.
 
 ### 1. Préparation de l'environnement
 
-### 2. Définition des variables et split chronologique
+### 2. Définition des variables et split train/test
 
-**À faire par l'étudiant :** - Identifiez vos colonnes prédictives (`features`) et la colonne cible (`value`). - Séparez chronologiquement vos données en ensembles d'entraînement (`Train`) et de test (`Test`). N'utilisez pas de split aléatoire !
+Les 6 features retenues sont GrLivArea, OverallQual, HouseAge, GarageCars, TotalBsmtSF et coef_multiplicateur. La cible est SalePrice. Le split 80/20 produit 1 168 observations en entraînement et 292 en test.
 
 ### 3. Entraînement du modèle de Forêt Aléatoire
 
-**À faire par l'étudiant :** - Instanciez et entraînez un modèle `RandomForestRegressor`. - Générez les prédictions `y_pred` sur l'ensemble de test.
+Le RandomForestRegressor est entraîné avec 200 arbres, une profondeur maximale de 15 et n_jobs=-1 pour utiliser tous les cœurs CPU disponibles.
 
 ### 4. Évaluation métrique
 
-**À faire par l'étudiant :** Calculez et affichez les scores d'évaluation requis : - **MAE** (Mean Absolute Error) - **RMSE** (Root Mean Squared Error) - **R²** (Coefficient de détermination)
+MAE : 20 700 $ — RMSE : 35 058 $ — R² : 0.7334
 
 ### 5. Importance des variables explicatives
 
-**À faire par l'étudiant :** Extrayez et affichez l'importance relative de chaque caractéristique prédictive.
+OverallQual domine avec 57% d'importance, suivi de GrLivArea (19%) et TotalBsmtSF (13%).
 
 ## Modélisation Vision / Deep Learning (Analyse d'Images ou Signaux)
 
@@ -347,8 +350,6 @@ Les seuils de classification ont été définis à partir des quantiles à 33% e
 catégorie économique : moins de 280 000 $
 catégorie moyenne : entre 280 000 $ et 550 000 $
 catégorie luxe : plus de 550 000 $
-
-La répartition est volontairement équilibrée afin que le CNN apprenne à différencier les trois classes sans biais de fréquence.
 
 ### Architecture du CNN
 
@@ -372,7 +373,7 @@ Accuracy sur le test set : 52,5%
 Accuracy sur 3 classes vs hasard pur (33%) : +58% au-dessus du hasard
 Précision sur la classe luxe : 67%
 
-Le CNN identifie particulièrement bien les biens de luxe (67% de précision), ce qui démontre que l'aspect visuel capture efficacement le standing du bien. Cela confirme que les maisons de luxe possèdent des caractéristiques visuelles distinctives (architecture, jardin, qualité de finition) bien apprises par le modèle.
+Le CNN identifie particulièrement bien les biens de luxe (67% de précision), ce qui démontre que l'aspect visuel capture efficacement le standing du bien.
 
 ### Limites et perspectives
 
@@ -383,31 +384,29 @@ recours au transfer learning à partir d'un modèle pré-entraîné comme Mobile
 data augmentation pour artificiellement enrichir le dataset
 filtrage préalable des images non pertinentes (cartes, photos floues)
 
-Cette brique CNN reste néanmoins un complément précieux au modèle tabulaire et démontre la faisabilité d'une approche multimodale pour la prédiction immobilière.
-
 ### Travaux Pratiques de Vision par Ordinateur (CNN)
 
 # 📷 Jalon 2 : Brique de Vision par Ordinateur (CNN & TensorFlow) (Squelette Étudiant)
 
-Ce notebook est dédié à la brique d'analyse d'images du **Jalon 2**. L'objectif est de concevoir un Réseau de Neurones Convolutif (CNN) sous TensorFlow/Keras pour classifier des motifs géométriques simples (Classe 0: Cercle vs Classe 1: Multiples Rectangles).
+Ce notebook est dédié à la brique d'analyse d'images du **Jalon 2**. L'objectif est de concevoir un Réseau de Neurones Convolutif (CNN) sous TensorFlow/Keras pour classifier les biens immobiliers en trois catégories de prix à partir de leurs photographies.
 
 ### 1. Préparation de l'environnement
 
-### 2. Génération du jeu d'images synthétiques
+### 2. Chargement des images
 
-Pour travailler de manière autonome sans importer de lourdes bases d'images externes, cette fonction utilitaire génère des images simulées en 64 x 64 pixels de formes simples (Cercle vs Rectangles).
+1 000 images de maisons californiennes issues du dataset SoCal ont été chargées, redimensionnées à 128x128 pixels et normalisées entre 0 et 1.
 
 ### 3. Split d'évaluation (Entraînement / Validation)
 
-**À faire par l'étudiant :** Divisez vos données d'images `X_images` et `y_labels` en 80% pour l'entraînement et 20% pour la validation.
+800 images pour l'entraînement et 200 images pour le test, avec stratification par catégorie de prix.
 
 ### 4. Conception de l'architecture du CNN
 
-**À faire par l'étudiant :** Instanciez un réseau convolutif séquentiel Keras comprenant des couches `Conv2D`, `MaxPooling2D`, `Flatten`, `Dense` et un `Dropout` pour classifier nos deux formes géométriques.
+Réseau convolutif séquentiel Keras comprenant 3 blocs Conv2D + MaxPooling2D, une couche Flatten, un Dropout 30%, une Dense 128 et une sortie softmax à 3 neurones.
 
 ### 5. Compilation et Entraînement
 
-**À faire par l'étudiant :** - Compilez le modèle avec l'optimiseur `'adam'` et la fonction de perte binaire. - Entraînez votre CNN sur environ 5 époques.
+Le modèle est compilé avec Adam et sparse_categorical_crossentropy. Entraînement sur 10 époques. Accuracy finale : 52.5% sur le test set.
 
 ------------------------------------------------------------------------
 
@@ -415,13 +414,11 @@ Pour travailler de manière autonome sans importer de lourdes bases d'images ext
 
 ## Stratégie de Validation
 
-Le découpage d'évaluation retenu est un split aléatoire stratifié 80/20 (train/test) avec un random_state fixé à 42 pour garantir la reproductibilité des résultats. Ce choix est adapté à la structure de nos données pour deux raisons principales.
+Le découpage d'évaluation retenu est un split aléatoire 80/20 (train/test) avec un random_state fixé à 42 pour garantir la reproductibilité des résultats.
 
-Premièrement, le dataset House Prices ne présente pas de structure temporelle stricte nécessitant un split chronologique : les transactions immobilières sont réparties sur plusieurs années sans dépendance séquentielle forte entre les observations.
+Ce choix est adapté à la structure de nos données pour deux raisons. Premièrement, le dataset House Prices ne présente pas de structure temporelle stricte nécessitant un split chronologique : les transactions immobilières couvrent plusieurs années (2006-2010) sans dépendance séquentielle forte entre les observations. Deuxièmement, le split aléatoire garantit une distribution similaire des prix entre train et test, évitant ainsi les fuites de données.
 
-Deuxièmement, la stratification par rapport à la variable cible n'est pas applicable directement en régression, mais le split aléatoire garantit une distribution similaire des prix entre train et test, évitant ainsi les fuites de données.
-
-Pour le modèle CNN, un split identique 80/20 a été appliqué sur les 1 000 images, avec stratification par catégorie de prix (économique, moyenne, luxe) pour garantir une représentation équilibrée des trois classes dans chaque ensemble.
+Pour le modèle CNN, un split identique 80/20 a été appliqué sur les 1 000 images, avec stratification par catégorie de prix pour garantir une représentation équilibrée des trois classes dans chaque ensemble.
 
 ## Résultats et Interprétation
 
@@ -429,11 +426,11 @@ Pour le modèle CNN, un split identique 80/20 a été appliqué sur les 1 000 im
 
 | Modèle | Métrique 1 (MAE / Précision) | Métrique 2 (RMSE / F1-Score) | R² / Score (%) |
 |---|---|---|---|
-| Baseline (prédiction par la moyenne) | 57 543 $ | 78 956 $ | 0.00 |
+| Baseline (prédiction par la moyenne) | 57 543 $ | 73 992 $ | 0.00% |
 | **Random Forest Regressor** | **20 700 $** | **35 058 $** | **73.34%** |
-| **CNN Classification (3 classes)** | **Précision : 55%** | **F1-Score : 0.52** | **Accuracy : 52.5%** |
+| **CNN Classification (3 classes)** | **Précision : 55%** | **F1-Score macro : 0.52** | **Accuracy : 52.5%** |
 
-Le Random Forest Regressor surpasse largement la baseline en réduisant l'erreur absolue moyenne de 57 543 $ à 20 700 $, soit une réduction de 64%. Le coefficient de détermination R² de 0.73 indique que le modèle explique 73% de la variance des prix, ce qui constitue un résultat solide pour une première itération avec seulement 6 features.
+Le Random Forest Regressor surpasse largement la baseline en réduisant l'erreur absolue moyenne de 57 543 $ à 20 700 $, soit une réduction de 64%. Le R² de 0.73 indique que le modèle explique 73% de la variance des prix, ce qui constitue un résultat solide avec seulement 6 features.
 
 Le CNN de classification atteint 52.5% d'accuracy sur 3 classes, soit 58% au-dessus du hasard pur (33%). Cette performance confirme que les caractéristiques visuelles des biens immobiliers contiennent des informations discriminantes, même si les features tabulaires restent dominantes pour la prédiction précise des prix.
 
@@ -443,25 +440,29 @@ Le CNN de classification atteint 52.5% d'accuracy sur 3 classes, soit 58% au-des
 
 ## Recommandations Stratégiques / Métier
 
+*À rédiger par les étudiants : Formulez des recommandations stratégiques, opérationnelles et innovantes basées sur vos découvertes analytiques et prédictives pour guider les décideurs.*
+
 Sur la base des résultats analytiques et prédictifs obtenus, plusieurs recommandations peuvent guider les décideurs du secteur immobilier.
 
-La qualité de construction est le levier principal du prix. Avec 57% d'importance dans le modèle RandomForest, OverallQual est de loin le facteur le plus déterminant. Pour un investisseur ou un vendeur, améliorer la qualité perçue du bien (rénovations, matériaux haut de gamme) est le moyen le plus efficace d'augmenter sa valeur de vente.
+La qualité de construction est le levier principal du prix. Avec 57% d'importance dans le modèle RandomForest et une corrélation de 0.808 avec SalePrice, OverallQual est de loin le facteur le plus déterminant. Pour un investisseur ou un vendeur, améliorer la qualité perçue du bien (rénovations, matériaux haut de gamme) est le moyen le plus efficace d'augmenter sa valeur de vente.
 
-La surface habitable reste un facteur clé mais secondaire. GrLivArea contribue à 19% de l'importance du modèle. L'agrandissement d'un bien peut significativement augmenter sa valeur, mais uniquement si la qualité de construction est maintenue.
+La surface habitable reste un facteur clé mais secondaire. GrLivArea contribue à 19% de l'importance du modèle avec une corrélation de 0.703. L'agrandissement d'un bien peut significativement augmenter sa valeur, mais uniquement si la qualité de construction est maintenue.
 
-L'âge du bien doit être pris en compte dans l'estimation. HouseAge contribue à 7% du modèle. Les biens anciens bénéficient d'une décote naturelle que le modèle capture bien, ce qui est cohérent avec la réalité du marché immobilier.
+La zone de marché impacte fortement les prix. Les biens en zone FV atteignent un prix moyen de 214 014 $ contre 82 768 $ en zone commerciale, soit un ratio de 2.6x. Pour un acheteur, privilégier une zone résidentielle de standing constitue le meilleur investissement à long terme.
 
 Le dashboard interactif développé (src/08_dashboard.py) permet à tout décideur non technique de simuler instantanément l'impact de chaque caractéristique sur le prix de vente, facilitant ainsi la prise de décision en temps réel.
 
 ## Limites et Perspectives
 
-Notre approche, bien que fonctionnelle, présente plusieurs limites identifiées de manière transparente.
+*À rédiger par les étudiants : Identifiez honnêtement les biais ou limites de votre approche et proposez des pistes d'amélioration futures.*
 
-Concernant le modèle tabulaire, le coefficient de zone (coef_multiplicateur) n'apporte qu'une contribution marginale de moins de 1%. Cette feature est trop grossière pour capturer la variabilité géographique réelle. Une amélioration consisterait à intégrer les coordonnées GPS des biens ou des données de prix au niveau du quartier (code postal, arrondissement).
+Notre approche présente plusieurs limites identifiées de manière transparente.
 
-Concernant le CNN, l'overfitting observé (86% d'accuracy en entraînement vs 52% en test) révèle un manque de données. Avec seulement 1 000 images, le modèle ne généralise pas suffisamment. Le recours au transfer learning (MobileNetV2, ResNet50) permettrait d'atteindre des performances nettement supérieures sans nécessiter plus de données.
+Concernant le modèle tabulaire, le coefficient de zone (coef_multiplicateur) n'apporte qu'une contribution marginale de moins de 1%. Cette feature est trop grossière pour capturer la variabilité géographique réelle. Une amélioration consisterait à intégrer les coordonnées GPS des biens ou des données de prix au niveau du quartier.
 
-Concernant le dataset, il s'agit de données immobilières californiennes datant de 2006-2010. Les modèles entraînés sur ces données ne sont pas directement transposables au marché immobilier actuel ou à d'autres régions géographiques sans re-entraînement.
+Concernant le CNN, l'overfitting observé (86% d'accuracy en entraînement vs 52% en test) révèle un manque de données. Avec seulement 1 000 images, le modèle ne généralise pas suffisamment. Le recours au transfer learning (MobileNetV2, ResNet50) permettrait d'atteindre des performances nettement supérieures.
+
+Concernant le dataset, il s'agit de données immobilières américaines datant de 2006-2010. Les modèles entraînés sur ces données ne sont pas directement transposables au marché immobilier actuel ou à d'autres régions géographiques sans re-entraînement.
 
 Enfin, la combinaison des prédictions tabulaires et visuelles en un modèle hybride (ensemble learning) constitue une piste d'amélioration prometteuse pour des travaux futurs.
 
