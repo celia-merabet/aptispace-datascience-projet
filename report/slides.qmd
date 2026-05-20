@@ -1,98 +1,171 @@
 ---
-title: "🎓 Soutenance de Projet Data Science"
-subtitle: "Présentation des résultats - Sujet Libre"
-author: "Groupe d'étudiants [Insérer Noms]"
+title: "🏠 Soutenance Projet Data Science"
+subtitle: "Prédiction des Prix Immobiliers"
+author: "APTISPACE - Data Science Project -
+Celia merabet, Abderrahmane Karim RAKEM, BOUYABRI Mohamed"
+
 date: today
+
 format:
   revealjs:
     theme: solarized
-    transition: slide
+    transition: none
     slide-number: true
     preview-links: auto
     chalkboard: true
-    code-fold: show
+    incremental: false
+execute:
+  echo: false
 ---
 
-# 🎯 Chapitres 1 & 2 : Acquisition & Wrangling
+# 🎯 Introduction
 
-## Sources de données & Nettoyage
+Projet de Data Science visant à :
 
-### Objectifs d'Acquisition
-
-- *[À compléter par les étudiants]* : Décrivez vos sources brutes (fichiers locaux, APIs, web scraping).
-
-### Algorithmes de Nettoyage appliqués
-
-- Traitement des valeurs manquantes (imputation/interpolation).
-- Gestion des anomalies physiques (outliers).
-- Standardisation des dates et encodage.
-
-> [!TIP]
-> Justifiez en quoi ces étapes garantissent la robustesse de vos modèles futurs.
+- Prédire le prix de biens immobiliers
+- Construire un pipeline complet ML
+- Comparer Machine Learning et Deep Learning
+- Produire des insights métier exploitables
 
 ---
 
-# 📊 Chapitres 3 & 4 : EDA & Visualisation
+# 📥 Chapitre 1 — Acquisition des Données
 
-## Exploration Visuelle & Insights Majeurs
+- Dataset immobilier : 1460 lignes, 85 variables
+- Variable cible : `SalePrice`
+- Variables principales : surface, qualité, garage, sous-sol
+- Création d’une variable métier : `coef_multiplicateur`
 
-### Statistiques Descriptives
+Objectif : 
+- Centraliser les données
+- Préparer un dataset exploitable
+- Ajouter une dimension métier
+---
 
-- Aperçu des indicateurs clés et structures.
+# 🧹 Chapitre 2 — Wrangling (Nettoyage)
 
-### Feature Engineering
+## Audit qualité
 
-- Extraction des variables cycliques et dérivées (ex: `hour`, `dayofweek`).
+- Vérification des types
+- Détection des valeurs manquantes
+- Analyse des doublons
+- Inspection des outliers
 
-::: {.fragment}
-### Insights Visuels clés
+## Nettoyage effectué
 
-- **Graphique interactif / statique** : Présentez ici le graphique le plus marquant (ex: corrélations ou tendances fortes).
-:::
+- Imputation des valeurs manquantes :
+  - numérique → médiane
+  - catégoriel → mode
+- Suppression des doublons (aucun détecté)
+- Traitement des outliers (1% trimming sur SalePrice)
+
+## Résultat
+
+- Dataset propre
+- Données homogènes
+- Prêtes pour analyse
 
 ---
 
-# 🧠 Chapitre 5 : Modélisation
+# 🔎 Chapitre 3 — EDA
 
-## Stratégie d'Apprentissage & Architectures
+- Prix moyen : 178 094 $
+- Prix médian : 163 000 $
+- Corrélation forte :
+  - OverallQual (0.74)
+  - GrLivArea (0.63)
+  - GarageCars (0.62)
+- 29 outliers détectés
 
-::: {.panel-tabset}
-### Machine Learning Tabulaire
-
-- Algorithme choisi : `RandomForestRegressor`, `XGBoost`, etc.
-- Justification du choix par rapport au problème métier.
-
-### Deep Learning (Vision / Signaux)
-
-- Réseau de neurones convolutif (**CNN**) sous **TensorFlow**.
-- Architecture des couches : *Conv2D*, *MaxPooling2D*, *Flatten*, *Dense*, *Dropout*.
-:::
+Insight : la qualité du bien est déterminante.
 
 ---
 
-# 🧪 Chapitre 6 : Évaluation
+# 📊 Chapitre 4 — Visualisation
 
-## Métriques & Robustesse des Prédictions
+- Corrélation prix / qualité
+- Corrélation prix / surface
+- Distribution des prix immobiliers
+- Analyse des variables catégorielles
 
-| Modèle | MAE | RMSE | $R^2$ (%) |
-| :--- | :---: | :---: | :---: |
-| Baseline (Ex: Naïve) | *[À compléter]* | *[À compléter]* | *[À compléter]* |
-| **Forêt Aléatoire (RF)** | **[À compléter]** | **[À compléter]** | **[À compléter]** |
-| **Réseau Convolutif (CNN)**| **[À compléter]** | **[À compléter]** | **[À compléter]** |
-
-> [!IMPORTANT]
-> Expliquez votre protocole de validation (ex : split chronologique ou Cross-Validation) pour prévenir tout risque d'overfitting.
+Insight : relation forte entre surface et prix.
 
 ---
 
-# 📢 Chapitre 7 : Communication
+# 🧠 Chapitre 5 — Modélisation
 
-## Storytelling & Recommandations Stratégiques
+## Machine Learning
 
-### Recommandations Métier clés
+- Modèle : RandomForestRegressor
+- Features :
+  - GrLivArea
+  - OverallQual
+  - HouseAge
+  - GarageCars
+  - TotalBsmtSF
+  - coef_multiplicateur
 
-- *[À compléter]* : Traduisez vos métriques de performance en préconisations opérationnelles ou gains métier directs.
+## Deep Learning
 
-### Limites & Perspectives
+- CNN avec TensorFlow
+- Conv2D + MaxPooling + Dense
+- Données simulées (vision)
 
-- Biais des données, limites de l'architecture, et voies d'amélioration futures.
+---
+
+# 📈 Chapitre 6 — Évaluation
+
+- MAE : 20 753 $
+- RMSE : 35 059 $
+- R² : 0.7334
+- Validation croisée R² moyen : 0.75
+
+Conclusion : modèle robuste et stable.
+
+---
+
+# 📉 Analyse des erreurs
+
+- MAE final : 12 289 $
+- RMSE : 21 151 $
+- R² final : 0.9034
+- Erreur moyenne faible (-580 $)
+
+Conclusion : très bonne performance globale.
+
+---
+
+# 📢 Chapitre 7 — Communication
+
+## Insights métiers
+
+- La qualité est le facteur principal du prix
+- La surface influence fortement la valeur
+- Les zones premium augmentent les prix
+- Les maisons récentes sont mieux valorisées
+
+## Recommandations
+
+- Automatiser les estimations
+- Cibler zones premium
+- Valoriser rénovation
+- Intégrer modèle en dashboard
+
+---
+
+# Conclusion
+
+Pipeline complet réalisé :
+
+- Acquisition ✔
+- Nettoyage ✔
+- Analyse ✔
+- Modélisation ✔
+- Évaluation ✔
+- Communication ✔
+
+Score final :
+
+👉 R² = 0.9034
+
+Modèle prêt pour usage métier.
