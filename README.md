@@ -41,6 +41,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 Ce projet de Data Science s’inscrit dans le domaine de l’analyse immobilière prédictive.
 L’objectif est de comprendre et prédire les prix de biens immobiliers à partir de données hétérogènes.
 
@@ -77,6 +78,10 @@ données visuelles (images de logements)
 >>>>>>> 8446a79f85e3069ae5fc48ee49add4d11b5824c9
 ## Contexte du Projet
 
+=======
+## Contexte du Projet
+
+>>>>>>> 8446a79f85e3069ae5fc48ee49add4d11b5824c9
 Ce projet s'inscrit dans une problématique de Data Science appliquée au marché immobilier, un domaine où l'analyse de données joue un rôle clé dans la prise de décision des particuliers, agences et investisseurs.
 
 L'objectif général est de comprendre et prédire les prix des logements à partir de plusieurs sources de données :
@@ -101,12 +106,15 @@ et construire des modèles prédictifs fiables
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 L’objectif principal est de construire un modèle de régression permettant de prédire le prix d’un bien immobilier (SalePrice).
 
 Nous cherchons à :
 =======
 *À rédiger par les étudiants — Pistes de réflexion :* - *Quelles sont les variables cibles principales et la tâche globale de modélisation (classification, régression, clustering, etc.) ?* - *Comment le couplage de données multi-sources et l'intégration de différents types de données (tabulaires, images, signaux, etc.) enrichissent-ils l'analyse ?* - *Quels sont les livrables analytiques attendus pour répondre à votre problématique et guider les prises de décisions ?*
 
+=======
+>>>>>>> 8446a79f85e3069ae5fc48ee49add4d11b5824c9
 =======
 >>>>>>> 8446a79f85e3069ae5fc48ee49add4d11b5824c9
 L'objectif principal du projet est de construire un modèle prédictif de régression capable d'estimer le prix d'un bien immobilier.
@@ -184,6 +192,7 @@ Un jeu de données secondaire a été créé manuellement pour enrichir l'analys
 ## Algorithme de Nettoyage
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 *À rédiger par les étudiants : Justifiez et détaillez l'enchaînement de vos opérations de traitement (uniformisation des dates, masquage des outliers, imputation, etc.). Faites référence aux fonctions correspondantes de votre module `src/data_clean.py`.*
 >>>>>>> a4e42e5e9dfc2a23819d7918bcc217144b95d712
 
@@ -198,6 +207,8 @@ One-Hot Encoding
 Label Encoding
 Standardisation des variables numériques
 =======
+=======
+>>>>>>> 8446a79f85e3069ae5fc48ee49add4d11b5824c9
 Le pipeline de nettoyage suit les étapes suivantes :
 >>>>>>> 8446a79f85e3069ae5fc48ee49add4d11b5824c9
 
